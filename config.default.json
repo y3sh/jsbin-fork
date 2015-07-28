@@ -11,14 +11,14 @@
   "max-request-size": "1MB",
   "max-age": 86400,
   "store": {
-    "adapter": "sqlite",
+    "adapter": "mysql",
     "sqlite": {
       "location": "jsbin.sqlite"
     },
     "mysql": {
-      "host": "localhost",
-      "user": "root",
-      "password": "",
+      "host": "in-openshift",
+      "user": "admin6ZeHvFH",
+      "password": "3RGTgT7tcfA7",
       "database": "jsbin",
       "charset": "utf8mb4",
       "collate": "utf8mb4_unicode_ci"

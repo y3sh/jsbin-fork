@@ -60,7 +60,6 @@
     "semver": "~2.1.0",
     "sendy-api": "0.0.1",
     "soak": "0.3.0",
-    "sqlite3": "~2.1.1",
     "stripe": "~2.7.3",
     "stylus": "^0.47.1",
     "undefsafe": "0.0.3",
