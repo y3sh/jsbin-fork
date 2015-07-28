@@ -59,7 +59,7 @@
     "report": []
   },
   "api": {
-    "allowAnonymousReadWrite": false,
+    "allowAnonymousReadWrite": true,
     "allowAnonymousRead": true,
     "requireSSL": false
   },
