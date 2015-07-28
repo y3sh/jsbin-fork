@@ -17,8 +17,8 @@
     },
     "mysql": {
       "host": "in-openshift",
-      "user": "admin6ZeHvFH",
-      "password": "3RGTgT7tcfA7",
+      "user": "adminmGz371c",
+      "password": "MxuW2JG7wtm9",
       "database": "jsbin",
       "charset": "utf8mb4",
       "collate": "utf8mb4_unicode_ci"
