@@ -566,20 +566,9 @@ function populateEditor(editor, panel) {
       saveChecksum = false;
     }
 
-    if (template && cached == template[panel]) { // restored from original saved
-      editor.setCode(cached);
-    } else if (cached && sessionURL == jsbin.getURL() && sessionURL !== jsbin.root) { // try to restore the session first - only if it matches this url
-      editor.setCode(cached);
-      // tell the document that it's currently being edited, but check that it doesn't match the saved template
-      // because sessionStorage gets set on a reload
-      changed = cached != saved && cached != template[panel];
-    } else if (!template.post && saved !== null && !/(edit|embed)$/.test(window.location) && !window.location.search) { // then their saved preference
-      editor.setCode(saved);
-      var processor = JSON.parse(store.localStorage.getItem('saved-processors') || '{}')[panel];
-      if (processor) {
-        jsbin.processors.set(jsbin.panels.panels[panel], processor);
-      }
-    } else { // otherwise fall back on the JS Bin default
+    if(panel === "javascript"){
+      fonduePopulate(editor);
+    } else {
       editor.setCode(template[panel]);
     }
 
@@ -595,4 +584,23 @@ function populateEditor(editor, panel) {
   if (changed) {
     $document.trigger('codeChange', [ { revert: false, onload: true } ]);
   }
+}
+
+
+function fonduePopulate(editor) {
+  var codeMirror = editor.editor;
+
+  var fileArr = JSON.parse(template.fileArr);
+  var extractedJS = _(fileArr).pluck("js").join("\n\n//Foo bar\n\n\n");
+
+  codeMirror.setCode(extractedJS);
+  window.fondueMirror = codeMirror;
+  window.fondueArr = fileArr;
+}
+
+function scratch(){
+  window.fondueMirror.markText({line:13, ch:1},{line:25, ch:1},{css:"background-color:#fffcbd"})
+
+
+
 }
