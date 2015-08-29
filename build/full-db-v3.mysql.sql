@@ -165,6 +165,7 @@ DROP TABLE IF EXISTS `sandbox`;
 CREATE TABLE `sandbox` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `javascript` mediumtext COLLATE utf8mb4_unicode_ci,
+  `fileArr` mediumtext COLLATE utf8mb4_unicode_ci,
   `html` mediumtext COLLATE utf8mb4_unicode_ci,
   `created` datetime DEFAULT NULL,
   `last_viewed` datetime DEFAULT NULL,

@@ -88,9 +88,12 @@ CREATE TABLE IF NOT EXISTS `ownership` (
 /*
 -- Table structure for table `sandbox`
 --*/
+--DROP TABLE IF EXISTS `sandbox`;
+
 CREATE TABLE IF NOT EXISTS `sandbox` (
   `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   `javascript` TEXT NOT NULL DEFAULT "",
+  `fileArr` TEXT NOT NULL DEFAULT "",
   `html` TEXT NOT NULL DEFAULT "",
   `created` DATETIME DEFAULT NULL,
   `last_viewed` DATETIME DEFAULT NULL,
