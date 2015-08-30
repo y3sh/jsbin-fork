@@ -586,21 +586,97 @@ function populateEditor(editor, panel) {
   }
 }
 
-
 function fonduePopulate(editor) {
   var codeMirror = editor.editor;
 
-  var fileArr = JSON.parse(template.fileArr);
-  var extractedJS = _(fileArr).pluck("js").join("\n\n//Foo bar\n\n\n");
+  var fondue = JSON.parse(template.fondue);
+
+  var sourceHeader = "// Begin Source File: ";
+  var sourceFooter = "// End Source File: ";
+
+  var extractedJS = _(fondue.scripts).reduce(function(memo, scriptObj){
+    var startJS = sourceHeader + scriptObj.path + "\n";
+    var endJS = sourceFooter + scriptObj.path + "\n\n\n";
+    memo += startJS + scriptObj.js + endJS;
+    return memo;
+  }, "");
 
   codeMirror.setCode(extractedJS);
+
+  var scriptObj;
+  codeMirror.eachLine(function(line) {
+    var arr = line.text.split(sourceHeader);
+    if (arr.length > 1){
+      scriptObj = _(fondue.scripts).find(function(script){
+        if (script.path === arr[1]){
+          return true;
+        }
+      });
+
+      if (scriptObj) {
+        scriptObj.binStarLine = line.lineNo();
+      }
+    }
+
+    arr = line.text.split(sourceFooter);
+    if (arr.length > 1){
+      scriptObj = _(fondue.scripts).find(function(script){
+        if (script.path === arr[1]){
+          return true;
+        }
+      });
+
+      if (scriptObj) {
+        scriptObj.endLine = line.lineNo() - 1;
+      }
+    }
+  });
+
   window.fondueMirror = codeMirror;
-  window.fondueArr = fileArr;
+  window.fondue = fondue;
+
+  //scratch()
 }
 
-function scratch(){
-  window.fondueMirror.markText({line:13, ch:1},{line:25, ch:1},{css:"background-color:#fffcbd"})
+function annotateSourceTraces(){
+  fondueMirror.setOption("lineNumbers", true);
 
+  _(fondue.traces).each(function (trace) {
+    var script = _(fondue.scripts).find(function (scriptObj) {
+      return scriptObj.path === trace.path;
+    });
 
+    var lineOffset = script.binStarLine;
 
+    fondueMirror.markText(
+      {
+        line: lineOffset + parseInt(trace.startLine),
+        ch: parseInt(trace.startColumn)
+      },
+      {
+        line: lineOffset + parseInt(trace.endLine),
+        ch: parseInt(trace.endColumn)
+      },
+      {
+        css: "background-color:#fffcbd"
+      }
+    );
+
+    console.log({
+        line: lineOffset + parseInt(trace.startLine),
+        ch: parseInt(trace.startColumn)
+      },
+      {
+        line: lineOffset + parseInt(trace.endLine),
+        ch: parseInt(trace.endColumn)
+      },
+      {
+        css: "background-color:#fffcbd"
+      })
+  });
+}
+
+function later(){
+  fondueMirror.setOption("lineNumbers", true)
+  fondueMirror.setOption("lineNumbers", false)
 }
