@@ -96,7 +96,8 @@ var Panel = function (name, settings) {
       dragDrop: false, // we handle it ourselves
       mode: editorModes[panelLanguage],
       lineWrapping: true,
-      // gutters: ['line-highlight'],
+      gutters: ['pill-gutter'],
+      lineNumbers: true,
       theme: jsbin.settings.theme || 'jsbin',
       highlightLine: true
     };
@@ -634,49 +635,4 @@ function fonduePopulate(editor) {
 
   window.fondueMirror = codeMirror;
   window.fondue = fondue;
-
-  //scratch()
-}
-
-function annotateSourceTraces(){
-  fondueMirror.setOption("lineNumbers", true);
-
-  _(fondue.traces).each(function (trace) {
-    var script = _(fondue.scripts).find(function (scriptObj) {
-      return scriptObj.path === trace.path;
-    });
-
-    var lineOffset = script.binStarLine;
-
-    fondueMirror.markText(
-      {
-        line: lineOffset + parseInt(trace.startLine),
-        ch: parseInt(trace.startColumn)
-      },
-      {
-        line: lineOffset + parseInt(trace.endLine),
-        ch: parseInt(trace.endColumn)
-      },
-      {
-        css: "background-color:#fffcbd"
-      }
-    );
-
-    console.log({
-        line: lineOffset + parseInt(trace.startLine),
-        ch: parseInt(trace.startColumn)
-      },
-      {
-        line: lineOffset + parseInt(trace.endLine),
-        ch: parseInt(trace.endColumn)
-      },
-      {
-        css: "background-color:#fffcbd"
-      })
-  });
-}
-
-function later(){
-  fondueMirror.setOption("lineNumbers", true)
-  fondueMirror.setOption("lineNumbers", false)
 }

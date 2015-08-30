@@ -43,6 +43,7 @@
     "/js/render/console.js",
     "/js/processors/processor.js",
     "/js/editors/panel.js",
+    "/js/editors/panelFondue.js",
     "/js/editors/editors.js",
     "/js/editors/libraries.js",
     "/js/editors/library.js",

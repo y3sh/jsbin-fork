@@ -6208,3 +6208,102 @@ div.loggedout {
   right: 1px;
   content: '';
 }
+
+
+.pill-gutter {
+  width: 45px;
+}
+.theseus-call-count {
+  pointer-events: auto;
+  color: #111;
+  font-family: sans-serif;
+  font-size: 12px;
+  /* line-height: 0; */
+  /* otherwise sans-serif font pushes line height > 15px */
+  /* outside brackets line-height:0 seems to break things */
+  background: #fff;
+  border: 1px solid #0186cc;
+  border-radius: 0 6px 6px 0;
+  border-left: 0;
+  padding: 0 5px 0 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.theseus-call-count:hover {
+  background: #0186cc;
+  color: #fff;
+}
+.theseus-call-count:active {
+  color: #00f;
+}
+.theseus-call-count.none {
+  border-color: #ccc;
+  color: #666;
+}
+.theseus-call-count.none:hover {
+  background: #ccc;
+  color: #fff;
+}
+.theseus-call-count.none:active {
+  color: #000;
+}
+.theseus-call-count.none.active {
+  box-shadow: 0 0 4px 1px #ccc;
+  background: #ccc;
+  border-color: #ccc;
+  color: #000;
+}
+.theseus-call-count.exception {
+  border-width: 0;
+  box-shadow: 0 0 2px 1px #f00;
+  color: #950000;
+}
+.theseus-call-count.exception:hover {
+  background: #f00;
+  color: #fff;
+}
+.theseus-call-count.exception.active {
+  box-shadow: 0 0 4px 1px #f00;
+  background: #ffc0c0;
+  color: #000;
+}
+.theseus-call-count.active {
+  border-width: 0;
+  box-shadow: 0 0 4px 1px #0186cc;
+  background: #c1e1f2;
+}
+.theseus-call-count.active .glyph {
+  display: inline;
+  position: relative;
+  top: 1px;
+}
+.theseus-call-count .glyph {
+  display: none;
+  margin-left: 5px;
+}
+
+.invoke-node {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 0;
+  /*background-color: #e8f2ff;*/
+  background-color: #25a7e3;
+  box-shadow: inset 0 8px 8px -8px #5c5b5b,
+}
+
+.invoke-node:before {
+  content: "";
+  position: absolute;
+  background: inherit;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  width: 200%;
+  right: 100%;
+  background-color: #25a7e3;
+  /*background-color: #e8f2ff;*/
+  box-shadow: inset 0 8px 8px -8px #696868,
+}
