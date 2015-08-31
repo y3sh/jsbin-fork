@@ -1943,7 +1943,7 @@ a:hover {
 }
 
 #bin {
-  top: 36px;
+  top: 130px;
   width: 100%;
   z-index: 2;
   display: none;
@@ -6289,21 +6289,61 @@ div.loggedout {
   top: 0;
   bottom: 0;
   z-index: 0;
-  /*background-color: #e8f2ff;*/
+  overflow: scroll;
   background-color: #25a7e3;
-  box-shadow: inset 0 8px 8px -8px #5c5b5b,
+  box-shadow: inset 8px 8px 8px -9px #5c5b5b;
+  border-radius: 3px;
 }
 
-.invoke-node:before {
-  content: "";
-  position: absolute;
-  background: inherit;
-  top: 0;
-  bottom: 0;
-  height: 100%;
-  width: 200%;
-  right: 100%;
-  background-color: #25a7e3;
-  /*background-color: #e8f2ff;*/
-  box-shadow: inset 0 8px 8px -8px #696868,
+
+.fondue-call-row{
+  padding-left:1em;
+  padding-top:1em;
+  color: white;
 }
+
+.fondue-called-by span{
+
+}
+
+.fondue-called-args-wrap{
+  padding-left: 1em;
+}
+
+.fondue-called-args-head{
+  width: 100%;
+}
+
+.fondue-called-args{
+  width:100%;
+}
+
+.fondue-args-list{
+  list-style: none;
+  -webkit-margin-before: 0;
+  -webkit-margin-after: 0;
+  -webkit-padding-start: 0;
+  -webkit-padding-end: 0;
+}
+
+.fondue-args-list-item{
+
+}
+
+.fondue-arg{
+  color:#f6da79;
+}
+
+#bin{
+  top: 130px;
+}
+
+#control {
+  height: 130px;
+}
+
+.fondue-panel {
+  padding-top: 50px;
+  padding-left: .5em;
+}
+

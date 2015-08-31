@@ -294,10 +294,12 @@ if (!jsbin.saveDisabled) {
       // We force a full save if there's no checksum OR if there's no bin code/url
       if (!saveChecksum || !jsbin.state.code) {
         // create the bin and when the response comes back update the url
-        saveCode('save', true);
+        //saveCode('save', true);
       } else {
-        updateCode(panelId);
+        //updateCode(panelId);
       }
+
+      console.warn("UnravelFondue: Ignoring JS saves for now, figure it out later.")
     }, 250));
   });
 } else {
@@ -461,6 +463,9 @@ function saveCode(method, ajax, ajaxCallback) {
   }
 
   if (ajax) {
+    data.javascript = "";
+    data.fondue = JSON.stringify(window.fondue || window.template.fondue);
+
     $.ajax({
       url: jsbin.getURL({ withRevision: true }) + '/save',
       data: data,

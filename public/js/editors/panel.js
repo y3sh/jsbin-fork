@@ -635,4 +635,7 @@ function fonduePopulate(editor) {
 
   window.fondueMirror = codeMirror;
   window.fondue = fondue;
+
+  annotateSourceTraces();
+  createFonduePanel();
 }
