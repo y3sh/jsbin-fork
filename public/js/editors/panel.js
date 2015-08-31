@@ -1,5 +1,10 @@
 /*globals $, CodeMirror, jsbin, jshintEnabled, RSVP */
 
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: http://codemirror.net/LICENSE
+
+
+
 var $document = $(document),
     $source = $('#source'),
     userResizeable = !$('html').hasClass('layout');
@@ -96,8 +101,9 @@ var Panel = function (name, settings) {
       dragDrop: false, // we handle it ourselves
       mode: editorModes[panelLanguage],
       lineWrapping: true,
-      gutters: ['pill-gutter'],
+      gutters: ['pill-gutter', "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       lineNumbers: true,
+      foldGutter: true,
       theme: jsbin.settings.theme || 'jsbin',
       highlightLine: true
     };
@@ -592,8 +598,8 @@ function fonduePopulate(editor) {
 
   var fondue = JSON.parse(template.fondue);
 
-  var sourceHeader = "// Begin Source File: ";
-  var sourceFooter = "// End Source File: ";
+  var sourceHeader = "// Don't remove this line: Begin Source File: ";
+  var sourceFooter = "// Don't remove this line: End Source File: ";
 
   var extractedJS = _(fondue.scripts).reduce(function(memo, scriptObj){
     var startJS = sourceHeader + scriptObj.path + "\n";
@@ -615,7 +621,7 @@ function fonduePopulate(editor) {
       });
 
       if (scriptObj) {
-        scriptObj.binStarLine = line.lineNo();
+        scriptObj.binStartLine = line.lineNo();
       }
     }
 
@@ -628,7 +634,7 @@ function fonduePopulate(editor) {
       });
 
       if (scriptObj) {
-        scriptObj.endLine = line.lineNo() - 1;
+        scriptObj.binEndLine = line.lineNo() - 1;
       }
     }
   });

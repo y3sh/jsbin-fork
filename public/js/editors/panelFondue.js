@@ -22,7 +22,11 @@ var createFonduePanel = function () {
     this.toggleInactive = _.bind(this.toggleInactive, this);
     this.toggleFile = _.bind(this.toggleFile, this);
     this.fondue = fondue;
-    this.$el.find("#fondue-toggle-inactive").on("click", this.toggleInactive)
+    this.$el.find("#fondue-toggle-inactive").on("click", this.toggleInactive);
+    this.codeMirrorMarkers = {
+      //path:marker
+    };
+    this.traceLessMarkers = [];
   };
 
   FonduePanelView.prototype = {
@@ -49,19 +53,71 @@ var createFonduePanel = function () {
       var $toggle = $(e.currentTarget);
       var path = $toggle.attr("data");
       if ($toggle.is(':checked')) {
-        console.log("Hide", path)
+        this.hideFile(path);
       } else {
-        console.log("Show", path)
+        this.showFile(path);
       }
     },
 
     toggleInactive: function (e) {
       var $el = $(e.currentTarget);
       if ($el.is(':checked')) {
-        console.log("Hide code")
+        this.hideInactive();
       } else {
-        console.log("Show code")
+        this.showInactive();
       }
+    },
+
+    hideFile: function (path) {
+      var script = _(window.fondue.scripts).find(function (script) {
+        return script.path === path;
+      });
+
+      this.codeMirrorMarkers[path] = window.fondueMirror.markText({
+        line: script.binStartLine - 1
+      }, {
+        line: script.binEndLine + 3
+      }, {collapsed: true});
+    },
+
+    showFile: function (path) {
+      this.codeMirrorMarkers[path].clear();
+    },
+
+    hideInactive: function () {
+      var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
+        var posRange = traceMark.find();
+        var from = posRange.from.line;
+        var to = posRange.to.line;
+
+        var arr = [];
+        for (var i = from; i <= to; i++) {
+          arr.push(i);
+        }
+
+        return arr;
+      }).flatten();
+
+      fondueMirror.eachLine(_.bind(function (line) {
+        var lineNo = line.lineNo();
+        if (!avoidRanges.contains(lineNo)) {
+          var marker = window.fondueMirror.markText({
+            line: lineNo-1
+          }, {
+            line: lineNo
+          }, {collapsed: true});
+
+          this.traceLessMarkers.push(marker);
+        }
+      }, this));
+
+    },
+
+    showInactive: function () {
+      _(this.traceLessMarkers).each(function(marker){
+        marker.clear();
+      });
+      this.traceLessMarkers = [];
     }
   };
 
@@ -87,15 +143,16 @@ var annotateSourceTraces = function () {
     '</li> ';
 
   fondueMirror.setOption("lineNumbers", true);
+  fondue.traceMarks = [];
 
   _(fondue.traces).each(function (trace) {
     var script = _(fondue.scripts).find(function (scriptObj) {
       return scriptObj.path === trace.path;
     });
 
-    var lineOffset = script.binStarLine;
+    var lineOffset = script.binStartLine;
 
-    fondueMirror.markText(
+    fondue.traceMarks.push(fondueMirror.markText(
       {
         line: lineOffset + parseInt(trace.startLine),
         ch: parseInt(trace.startColumn)
@@ -107,7 +164,7 @@ var annotateSourceTraces = function () {
       {
         css: "background-color:#fffcbd"
       }
-    );
+    ));
 
     if (trace.type === "function") {
       var pill = new PillView(fondueMirror, lineOffset + parseInt(trace.startLine), trace);
