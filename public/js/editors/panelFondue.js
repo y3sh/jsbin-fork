@@ -2,6 +2,7 @@ var createFonduePanel = function () {
   var panelTemplate =
     '<div class="fondue-panel"> ' +
     ' <div> ' +
+    '   <img id="hider-spinner" src="/images/spinner.gif" style="height:12px; display:none;"> ' +
     '   <input type="checkbox" id="fondue-toggle-inactive"/> Hide Inactive Code ' +
     ' </div> ' +
     ' <div> ' +
@@ -26,7 +27,6 @@ var createFonduePanel = function () {
     this.codeMirrorMarkers = {
       //path:marker
     };
-    this.traceLessMarkers = [];
   };
 
   FonduePanelView.prototype = {
@@ -73,18 +73,100 @@ var createFonduePanel = function () {
         return script.path === path;
       });
 
-      this.codeMirrorMarkers[path] = window.fondueMirror.markText({
-        line: script.binStartLine - 1
-      }, {
-        line: script.binEndLine + 3
-      }, {collapsed: true});
-    },
-
-    showFile: function (path) {
-      this.codeMirrorMarkers[path].clear();
+      var startLine = script.binStartLine;
+      var endLine = script.binEndLine;
+      if (!this.codeMirrorMarkers[path]) {
+        this.codeMirrorMarkers[path] = [];
+      }
+      this.hideSmart(startLine, endLine, this.codeMirrorMarkers[path]);
     },
 
     hideInactive: function () {
+      if (!this.codeMirrorMarkers["allInactive"]) {
+        this.codeMirrorMarkers["allInactive"] = [];
+      }
+
+      this.hideSmart(1, fondueMirror.lineCount(), this.codeMirrorMarkers["allInactive"], fmActiveLines);
+    },
+
+    showFile: function (path) {
+      this.showSmart(this.codeMirrorMarkers[path]);
+      this.codeMirrorMarkers[path] = [];
+    },
+
+    showInactive: function () {
+      this.showSmart(this.codeMirrorMarkers["allInactive"]);
+      this.codeMirrorMarkers["allInactive"] = [];
+    },
+
+    showSmart: function (markerArr) {
+      var nums = [];
+      _(markerArr).each(function (marker) {
+        var loc = marker.find();
+        if (loc) {
+          nums = nums.concat(_.range(loc.from.line, loc.to.line + 1));
+        }
+        marker.clear();
+      });
+      fmHideLines = _.difference(fmHideLines, nums)
+    },
+
+    hideSmart: function (startLine, endLine, markerArr, addedLinesToExclude) {
+      var conflictLines = _.union(fmHideLines, addedLinesToExclude || []);
+      conflictLines = _.reject(conflictLines, function (lineNumber) {
+        return lineNumber < startLine || lineNumber > endLine;
+      });
+
+      if (conflictLines.length < 1) {
+        markerArr.push(window.fondueMirror.markText({
+          line: startLine
+        }, {
+          line: endLine
+        }, {collapsed: true}));
+        fmHideLines = _.union(fmHideLines, _.range(startLine, endLine + 1));
+      } else {
+        var ranges = [];
+        var _conflicts = _(conflictLines).sortBy(function (i) {
+          return i
+        });
+        var lastLine = null;
+        for (var i = startLine; i <= endLine; i++) {
+          if (i === endLine && lastLine !== null) {
+            if (_conflicts.contains(i)) {
+              ranges.push([lastLine, i - 1]);
+            } else {
+              ranges.push([lastLine, i]);
+            }
+          } else if (_conflicts.contains(i)) {
+            if (lastLine !== null) {
+              if (i === endLine) {
+                ranges.push([lastLine, i]);
+              } else {
+                ranges.push([lastLine -1, i - 1]);
+              }
+              lastLine = null;
+            }
+          } else {
+            if (lastLine === null) {
+              lastLine = i;
+            }
+          }
+        }
+
+        _(ranges).each(function (range) {
+          markerArr.push(window.fondueMirror.markText({
+            line: range[0]
+          }, {
+            line: range[1]
+          }, {collapsed: true}));
+
+          fmHideLines = _.union(fmHideLines, _.range(range[0], range[1] + 1));
+        }, this);
+      }
+
+    },
+
+    hideInactiveSlow: function () {
       var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
         var posRange = traceMark.find();
         var from = posRange.from.line;
@@ -98,27 +180,67 @@ var createFonduePanel = function () {
         return arr;
       }).flatten();
 
-      fondueMirror.eachLine(_.bind(function (line) {
-        var lineNo = line.lineNo();
-        if (!avoidRanges.contains(lineNo)) {
-          var marker = window.fondueMirror.markText({
-            line: lineNo-1
-          }, {
-            line: lineNo
-          }, {collapsed: true});
+      $("#fondue-toggle-inactive").hide();
+      $("#hider-spinner").show();
 
-          this.traceLessMarkers.push(marker);
-        }
-      }, this));
+      window.setTimeout(_.bind(function () {
+        fondueMirror.eachLine(_.bind(function (line) {
+          var lineNo = line.lineNo();
+          if (!avoidRanges.contains(lineNo)) {
+            var marker = window.fondueMirror.markText({
+              line: lineNo - 1
+            }, {
+              line: lineNo
+            }, {collapsed: true});
 
+            this.traceLessMarkers.push(marker);
+          }
+        }, this));
+
+        $("#fondue-toggle-inactive").show();
+        $("#hider-spinner").hide();
+      }, this), 500);
     },
 
-    showInactive: function () {
-      _(this.traceLessMarkers).each(function(marker){
-        marker.clear();
-      });
-      this.traceLessMarkers = [];
-    }
+    hideInactiveHighSpeed: function () {
+      var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
+        var posRange = traceMark.find();
+        var from = posRange.from.line;
+        var to = posRange.to.line;
+
+        return [from, to];
+      }).sortBy(function (range) {
+        return range[0];
+      }).value();
+
+      var lineCount = fondueMirror.lineCount();
+      var hideRanges = [];
+      var lastRangeEnd = 0;
+      for (var i = 0; i <= avoidRanges.length - 1; i++) {
+        if (avoidRanges[i][0] === lastRangeEnd || avoidRanges[i][0] === lastRangeEnd + 1) {
+        } else {
+          hideRanges.push([lastRangeEnd === 0 ? 0 : lastRangeEnd + 1, avoidRanges[i][0] - 1]);
+        }
+
+        lastRangeEnd = avoidRanges[i][1];
+      }
+
+      if (avoidRanges[avoidRanges.length - 1][1] < lineCount) {
+        hideRanges.push([lastRangeEnd + 1, lineCount]);
+      }
+
+      _(hideRanges).each(function (range) {
+        var marker = window.fondueMirror.markText({
+          line: range[0]
+        }, {
+          line: range[1]
+        }, {
+          collapsed: true
+        });
+
+        this.traceLessMarkers.push(marker);
+      }, this);
+    },
   };
 
   var panelView = new FonduePanelView(fondue);
@@ -152,13 +274,15 @@ var annotateSourceTraces = function () {
 
     var lineOffset = script.binStartLine;
 
+    var startLine = lineOffset + parseInt(trace.startLine);
+    var endLine = lineOffset + parseInt(trace.endLine);
     fondue.traceMarks.push(fondueMirror.markText(
       {
-        line: lineOffset + parseInt(trace.startLine),
+        line: startLine,
         ch: parseInt(trace.startColumn)
       },
       {
-        line: lineOffset + parseInt(trace.endLine),
+        line: endLine,
         ch: parseInt(trace.endColumn)
       },
       {
@@ -166,8 +290,10 @@ var annotateSourceTraces = function () {
       }
     ));
 
+    fmActiveLines = fmActiveLines.concat(_.range(startLine, endLine + 1));
+
     if (trace.type === "function") {
-      var pill = new PillView(fondueMirror, lineOffset + parseInt(trace.startLine), trace);
+      var pill = new PillView(fondueMirror, startLine, trace);
       pill.setCount(trace.hits);
       pill.on("click", function (e) {
         if (!pill.$activeLine) {
@@ -260,5 +386,6 @@ PillView.prototype = {
   },
 };
 
-
+window.fmHideLines = [];
+window.fmActiveLines = [];
 
