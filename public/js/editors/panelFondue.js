@@ -27,6 +27,7 @@ var createFonduePanel = function () {
     this.codeMirrorMarkers = {
       //path:marker
     };
+    this.traceLessMarkers = [];
   };
 
   FonduePanelView.prototype = {
@@ -68,105 +69,45 @@ var createFonduePanel = function () {
       }
     },
 
+    showFile: function (path) {
+      var codeMirrorMarker = this.codeMirrorMarkers[path];
+      if (codeMirrorMarker) {
+        codeMirrorMarker.clear();
+      }
+    },
+
+    showInactive: function () {
+      $("#fondue-toggle-inactive").hide();
+      $("#hider-spinner").show();
+
+      window.setTimeout(_.bind(function () {
+        _(this.traceLessMarkers).each(function (marker) {
+          marker.clear();
+        });
+        this.traceLessMarkers = [];
+        $("#fondue-toggle-inactive").show();
+        $("#hider-spinner").hide();
+      }, this), 500);
+    },
+
     hideFile: function (path) {
       var script = _(window.fondue.scripts).find(function (script) {
         return script.path === path;
       });
 
-      var startLine = script.binStartLine;
-      var endLine = script.binEndLine;
-      if (!this.codeMirrorMarkers[path]) {
-        this.codeMirrorMarkers[path] = [];
-      }
-      this.hideSmart(startLine, endLine, this.codeMirrorMarkers[path]);
+      var startLine = script.binStartLine - 1;
+      var endLine = script.binEndLine + 3;
+
+      this.codeMirrorMarkers[path] = window.fondueMirror.markText({
+        line: startLine
+      }, {
+        line: endLine
+      }, {collapsed: true});
+
+      fmHideLines.concat(_.range())
     },
 
     hideInactive: function () {
-      if (!this.codeMirrorMarkers["allInactive"]) {
-        this.codeMirrorMarkers["allInactive"] = [];
-      }
-
-      this.hideSmart(1, fondueMirror.lineCount(), this.codeMirrorMarkers["allInactive"], fmActiveLines);
-    },
-
-    showFile: function (path) {
-      this.showSmart(this.codeMirrorMarkers[path]);
-      this.codeMirrorMarkers[path] = [];
-    },
-
-    showInactive: function () {
-      this.showSmart(this.codeMirrorMarkers["allInactive"]);
-      this.codeMirrorMarkers["allInactive"] = [];
-    },
-
-    showSmart: function (markerArr) {
-      var nums = [];
-      _(markerArr).each(function (marker) {
-        var loc = marker.find();
-        if (loc) {
-          nums = nums.concat(_.range(loc.from.line, loc.to.line + 1));
-        }
-        marker.clear();
-      });
-      fmHideLines = _.difference(fmHideLines, nums)
-    },
-
-    hideSmart: function (startLine, endLine, markerArr, addedLinesToExclude) {
-      var conflictLines = _.union(fmHideLines, addedLinesToExclude || []);
-      conflictLines = _.reject(conflictLines, function (lineNumber) {
-        return lineNumber < startLine || lineNumber > endLine;
-      });
-
-      if (conflictLines.length < 1) {
-        markerArr.push(window.fondueMirror.markText({
-          line: startLine
-        }, {
-          line: endLine
-        }, {collapsed: true}));
-        fmHideLines = _.union(fmHideLines, _.range(startLine, endLine + 1));
-      } else {
-        var ranges = [];
-        var _conflicts = _(conflictLines).sortBy(function (i) {
-          return i
-        });
-        var lastLine = null;
-        for (var i = startLine; i <= endLine; i++) {
-          if (i === endLine && lastLine !== null) {
-            if (_conflicts.contains(i)) {
-              ranges.push([lastLine, i - 1]);
-            } else {
-              ranges.push([lastLine, i]);
-            }
-          } else if (_conflicts.contains(i)) {
-            if (lastLine !== null) {
-              if (i === endLine) {
-                ranges.push([lastLine, i]);
-              } else {
-                ranges.push([lastLine -1, i - 1]);
-              }
-              lastLine = null;
-            }
-          } else {
-            if (lastLine === null) {
-              lastLine = i;
-            }
-          }
-        }
-
-        _(ranges).each(function (range) {
-          markerArr.push(window.fondueMirror.markText({
-            line: range[0]
-          }, {
-            line: range[1]
-          }, {collapsed: true}));
-
-          fmHideLines = _.union(fmHideLines, _.range(range[0], range[1] + 1));
-        }, this);
-      }
-
-    },
-
-    hideInactiveSlow: function () {
       var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
         var posRange = traceMark.find();
         var from = posRange.from.line;
@@ -200,47 +141,7 @@ var createFonduePanel = function () {
         $("#fondue-toggle-inactive").show();
         $("#hider-spinner").hide();
       }, this), 500);
-    },
-
-    hideInactiveHighSpeed: function () {
-      var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
-        var posRange = traceMark.find();
-        var from = posRange.from.line;
-        var to = posRange.to.line;
-
-        return [from, to];
-      }).sortBy(function (range) {
-        return range[0];
-      }).value();
-
-      var lineCount = fondueMirror.lineCount();
-      var hideRanges = [];
-      var lastRangeEnd = 0;
-      for (var i = 0; i <= avoidRanges.length - 1; i++) {
-        if (avoidRanges[i][0] === lastRangeEnd || avoidRanges[i][0] === lastRangeEnd + 1) {
-        } else {
-          hideRanges.push([lastRangeEnd === 0 ? 0 : lastRangeEnd + 1, avoidRanges[i][0] - 1]);
-        }
-
-        lastRangeEnd = avoidRanges[i][1];
-      }
-
-      if (avoidRanges[avoidRanges.length - 1][1] < lineCount) {
-        hideRanges.push([lastRangeEnd + 1, lineCount]);
-      }
-
-      _(hideRanges).each(function (range) {
-        var marker = window.fondueMirror.markText({
-          line: range[0]
-        }, {
-          line: range[1]
-        }, {
-          collapsed: true
-        });
-
-        this.traceLessMarkers.push(marker);
-      }, this);
-    },
+    }
   };
 
   var panelView = new FonduePanelView(fondue);
@@ -290,7 +191,7 @@ var annotateSourceTraces = function () {
       }
     ));
 
-    fmActiveLines = fmActiveLines.concat(_.range(startLine, endLine + 1));
+    fmActiveLines.concat(_.range(startLine, endLine));
 
     if (trace.type === "function") {
       var pill = new PillView(fondueMirror, startLine, trace);
