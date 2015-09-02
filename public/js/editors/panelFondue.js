@@ -14,9 +14,6 @@ var createFonduePanel = function () {
   var fileToggleTemplate =
     '<li>  ' +
     '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _path_ ' +
-    '</li>' +
-    '<li>  ' +
-    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _path_ ' +
     '</li>';
 
   var fondueMasterToggleTemplate =
@@ -73,9 +70,9 @@ var createFonduePanel = function () {
       } else {
         subtractHeight = this.panelHeight;
       }
-      this.$bin.animate({top: this.binTopStart - subtractHeight}, { duration: 50, queue: false }, false);
-      this.$mirrorWrap.animate({height: this.mirrorWrapStart - subtractHeight}, { duration: 50, queue: false }, false);
-      this.$binControl.animate({height: this.controlHeightStart - subtractHeight}, { duration: 200, queue: false }, true);
+      this.$bin.animate({top: this.binTopStart - subtractHeight}, {duration: 50, queue: false}, false);
+      this.$mirrorWrap.animate({height: this.mirrorWrapStart - subtractHeight}, {duration: 50, queue: false}, false);
+      this.$binControl.animate({height: this.controlHeightStart - subtractHeight}, {duration: 200, queue: false}, true);
     },
 
     makeToggles: function () {
@@ -187,20 +184,29 @@ var createFonduePanel = function () {
 
 
 var annotateSourceTraces = function () {
-  var calledByTemplate = '<div class="fondue-call-row"> ' +
-    '<div class="fondue-called-by"><span>_calledby_</span></div> ' +
-    '<div class="fondue-called-args-wrap"> ' +
-    '<div class="fondue-called-args"> ' +
-    '<ul class="fondue-args-list"> ' +
-    '</ul> ' +
-    '</div> ' +
-    '</div> ' +
+  var invocationTemplate = '<div class="fondue-invocation-row">' +
     '</div>';
 
-  var argTemplate = '<li class="fondue-args-list-item"> ' +
-    '<span class="fondue-arg">_arg_</span>= ' +
-    '<span class="fondue-val">_val_</span> ' +
+  var calledByTemplate =
+    '<div class="fondue-call-row"> ' +
+    ' <div class="fondue-called-by">' +
+    '   <div>_calledby_</div>' +
+    ' </div> ' +
+    ' <div class="fondue-called-args-wrap"> ' +
+    '   <div class="fondue-called-args"> ' +
+    '     <ul class="fondue-args-list"> ' +
+    '     </ul> ' +
+    '   </div> ' +
+    ' </div> ' +
+    '</div>';
+
+  var argTemplate = '' +
+    '<li class="fondue-args-list-item"> ' +
+    ' <div class="fondue-arg">_arg_ =&nbsp;</div> ' +
+    ' <div class="fondue-val">_val_</div> ' +
     '</li> ';
+
+  var preTemplate = '<pre class="fondue-pre"><a href="javascript:;" class="fondue-object-toggle">(-)</a></pre>';
 
   fondueMirror.setOption("lineNumbers", true);
   fondue.traceMarks = [];
@@ -243,36 +249,95 @@ var annotateSourceTraces = function () {
 
           if (trace.invokes) {
             _(trace.invokes).each(function (invocation) {
-              var name = "";
+              if (invocation.callStack) {
 
-              if (invocation.parentNode) {
+                var $invokeRow = $(invocationTemplate);
 
-                if (invocation.parentNode.name) {
-                  name = invocation.parentNode.name;
-                } else {
-                  name = invocation.parentNode.path + ":" + invocation.parentNode.start.line;
-                }
+                _(invocation.callStack).each(function (callInvoke) {
+
+                  var idArr = callInvoke.nodeId.split("-");
+                  var idArrRev = _(idArr).clone().reverse();
+
+                  if (idArr.length < 5) {
+                    return;
+                  }
+
+                  var path = idArr.slice(0, -5).join("-");
+                  var type = idArrRev[4];
+                  var startLine = idArrRev[3];
+                  var startColumn = idArrRev[2];
+                  //var endLine = idArrRev[1];
+                  //var endColumn = idArrRev[0];
+
+                  var name = callInvoke.nodeName ? type + " " + callInvoke.nodeName : type;
+                  var $callRow = $(calledByTemplate.replace("_calledby_", name + " at <span class='call-path'>" + path + ":" + startLine + ":" + startColumn + "</span>"));
+
+                  _(callInvoke.arguments).each(function (arg, i) {
+                    var argValue;
+
+                    if (arg.value && arg.value.preview) {
+                      if (arg.value.ownProperties) {
+                        var $pre = $(preTemplate).append(stringifyObjToHTML(arg.value.ownProperties));
+                        argValue = $pre[0].outerHTML;
+                      } else {
+                        argValue = arg.value.preview;
+                      }
+                    } else if (arg.value.value === undefined) {
+                      argValue = "undefined";
+                    } else if (arg.value.value === null) {
+                      argValue = "null"
+                    } else if (arg.value.value && arg.value.value.trim().length < 1) {
+                      argValue = "\"" + arg.value.value + "\"";
+                    } else {
+                      argValue = JSON.stringify(arg.value.value);
+                    }
+
+                    if (!arg.name) {
+                      arg.name = "arguments[" + i + "]";
+                    }
+
+                    $callRow.find(".fondue-args-list").append(argTemplate.replace("_arg_", arg.name).replace("_val_", argValue));
+
+                    var objToggle = $callRow.find(".fondue-object-toggle");
+                    if(objToggle.length > 0){
+                      $(objToggle).click(function(e){
+                        var $target = $(e.currentTarget);
+                        var $parent = $($target.parent());
+                        if ($parent.height() > 16){
+                          $parent.attr("data", $parent.height());
+                          $parent.animate({height: 16}, 200);
+                          $target.text("(+)")
+                        } else {
+                          $parent.animate({height: $parent.attr("data")});
+                          $target.text("(-)")
+                        }
+                      });
+                    }
+                  });
+
+                  $invokeRow.append($callRow);
+                }, this);
+
+                pill.$invokeNode.append($invokeRow);
+
+              } else {
+                debugger;
+                pill.$invokeNode.append(calledByTemplate.replace("_calledby_", "(No caller captured)"));
+                _(invocation.arguments).each(function (arg) {
+                  var argValue = arg.value.value;
+                  if (argValue === undefined) {
+                    argValue = "undefined";
+                  } else if (argValue === null) {
+                    argValue = "null"
+                  } else if (argValue && argValue.trim().length < 1) {
+                    argValue = "\"" + argValue + "\"";
+                  } else {
+                    argValue = JSON.stringify(argValue);
+                  }
+
+                  pill.$invokeNode.find(".fondue-args-list").append(argTemplate.replace("_arg_", arg.name).replace("_val_", argValue));
+                });
               }
-
-              if (!name) {
-                name = "anonymous"
-              }
-
-              pill.$invokeNode.append(calledByTemplate.replace("_calledby_", name));
-              _(invocation.arguments).each(function (arg) {
-                var argValue = arg.value.value;
-                if (argValue === undefined) {
-                  argValue = "undefined";
-                } else if (argValue === null) {
-                  argValue = "null"
-                } else if (argValue && argValue.trim().length < 1) {
-                  argValue = "\"" + argValue + "\"";
-                } else {
-                  argValue = JSON.stringify(argValue);
-                }
-
-                pill.$invokeNode.find(".fondue-args-list").append(argTemplate.replace("_arg_", arg.name).replace("_val_", argValue));
-              });
             });
           }
         }
@@ -287,22 +352,17 @@ var annotateSourceTraces = function () {
           pill.expanded = false;
         } else {
           pill.$invokeNode.animate({
-            height: 150
+            height: 200
           }, 200);
           pill.$expander.animate({
-            height: 150
+            height: 200
           }, 200);
           pill.expanded = true;
         }
       });
     }
   });
-}
-
-function later() {
-  fondueMirror.setOption("lineNumbers", true)
-  fondueMirror.setOption("lineNumbers", false)
-}
+};
 
 function PillView(codeMirror, line) {
   this.$el = $("<span class='theseus-call-count none'><span class='counts'>0 calls</span></span>");
@@ -323,6 +383,28 @@ PillView.prototype = {
     this.setActive(!this._active);
   },
 };
+
+function stringifyObjToHTML(obj) {
+  var json = JSON.stringify(obj, null, 2);
+
+  json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+    var cls = 'number';
+    if (/^"/.test(match)) {
+      if (/:$/.test(match)) {
+        cls = 'key';
+      } else {
+        cls = 'string';
+      }
+    } else if (/true|false/.test(match)) {
+      cls = 'boolean';
+    } else if (/null/.test(match)) {
+      cls = 'null';
+    }
+    return '<span class="' + cls + '">' + match + '</span>';
+  });
+}
+
 
 window.fmHideLines = [];
 window.fmActiveLines = [];

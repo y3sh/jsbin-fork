@@ -644,4 +644,7 @@ function fonduePopulate(editor) {
 
   annotateSourceTraces();
   createFonduePanel();
+  window.setTimeout(function () {
+    fondueMirror.scrollTo(0, 0);
+  }, 1)
 }

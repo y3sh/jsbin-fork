@@ -6285,22 +6285,79 @@ div.loggedout {
 
 .invoke-node {
   position: absolute;
+  font-size: 12px;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
   z-index: 0;
   overflow: scroll;
-  background-color: #25a7e3;
+  background-color: #2592c6;
   box-shadow: inset 8px 8px 8px -9px #5c5b5b;
   border-radius: 3px;
 }
 
+.fondue-args-list-item{
+  width: 100%;
+  display:block;
+  float:left;
+}
 
-.fondue-call-row{
-  padding-left:1em;
-  padding-top:1em;
+.invoke-node .call-path {
+  color: #b3ffb0;
+}
+
+.fondue-arg {
+  float: left;
+}
+
+.fondue-val {
+  float: left;
+}
+
+pre.fondue-pre {
+  margin-left: 4px;
+  overflow: hidden;
+}
+
+pre.fondue-pre .string {
+  color: #b3ffb0;
+}
+
+pre.fondue-pre .number {
+  color: #ffd6be;
+}
+
+pre.fondue-pre .boolean {
+  color: #bdbaff;
+}
+
+pre.fondue-pre .null {
+  color: #ffc7ed;
+}
+
+pre.fondue-pre .key {
+  color: #ffa5a7;
+}
+
+pre.fondue-pre .fondue-object-toggle {
   color: white;
+  text-decoration: none;
+}
+
+.fondue-call-row {
+  padding-left: .5em;
+  padding-top: 0.25em;
+  color: white;
+  display: block;
+  float: left;
+  width: 100%;
+  padding-bottom: .25em;
+  border-bottom: 1px solid #cdcdcd;
+}
+
+.fondue-call-row:last-child {
+   border-bottom: none;
 }
 
 .fondue-called-by span{
