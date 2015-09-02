@@ -1,29 +1,46 @@
 var createFonduePanel = function () {
   var panelTemplate =
     '<div class="fondue-panel"> ' +
-    ' <div> ' +
-    '   <img id="hider-spinner" src="/images/spinner.gif" style="height:12px; display:none;"> ' +
-    '   <input type="checkbox" id="fondue-toggle-inactive"/> Hide Inactive Code ' +
-    ' </div> ' +
-    ' <div> ' +
+    ' <div class="group-wrap"> ' +
     '   <ul id="fondue-toggle-group">' +
+    '     <li>  ' +
+    '       <img id="hider-spinner" src="/images/spinner.gif" style="height:12px; display:none;"> ' +
+    '       <input type="checkbox" id="fondue-toggle-inactive"/> Hide Inactive Code ' +
+    '     </li>' +
     '   </ul> ' +
-    ' </div> ' +
+    ' </div>' +
     '</div>';
 
   var fileToggleTemplate =
     '<li>  ' +
     '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _path_ ' +
+    '</li>' +
+    '<li>  ' +
+    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _path_ ' +
     '</li>';
+
+  var fondueMasterToggleTemplate =
+    '<a role="button" id="fonduePanelToggle" class="button group" href="javascript:;" aria-label="FondueMaster">Tracing</a>';
 
   var FonduePanelView = function (fondue) {
     this.$el = $(panelTemplate);
+    this.$masterToggle = $(fondueMasterToggleTemplate);
     this.on = this.$el.on.bind(this.$el);
     this.render = _.bind(this.render, this);
     this.toggleInactive = _.bind(this.toggleInactive, this);
     this.toggleFile = _.bind(this.toggleFile, this);
+    this.openClose = _.bind(this.openClose, this);
     this.fondue = fondue;
     this.$el.find("#fondue-toggle-inactive").on("click", this.toggleInactive);
+    this.$binControl = $("#control");
+    this.controlHeightStart = this.$binControl.height();
+    this.$mirrorWrap = $(".CodeMirror-scroll");
+    this.mirrorWrapStart = this.$mirrorWrap.css("height");
+    this.$bin = $("#bin");
+    this.binTopStart = parseInt(this.$bin.css("top"));
+
+    //todo here set #bin and #control height to autosize
+
     this.codeMirrorMarkers = {
       //path:marker
     };
@@ -31,14 +48,34 @@ var createFonduePanel = function () {
   };
 
   FonduePanelView.prototype = {
-    render: function () {
-      var $control = $("#control");
+    panelHeight: 90,
 
-      if ($control.find(".fondue-panel").length < 1) {
-        $control.append(this.$el)
+    render: function () {
+      var $panel = $("#panels");
+
+      if (this.$binControl.find(".fondue-panel").length < 1) {
+        this.$binControl.append(this.$el);
+        this.$el.css("height", this.panelHeight + "px");
+      }
+      if ($panel.find("#fonduePanelToggle").length < 1) {
+        $panel.append(this.$masterToggle);
+        this.$masterToggle.on("click", this.openClose);
       }
 
       this.makeToggles();
+    },
+
+    openClose: function () {
+      var subtractHeight;
+
+      if (this.$binControl.height() < this.controlHeightStart) {
+        subtractHeight = 0;
+      } else {
+        subtractHeight = this.panelHeight;
+      }
+      this.$bin.animate({top: this.binTopStart - subtractHeight}, { duration: 50, queue: false }, false);
+      this.$mirrorWrap.animate({height: this.mirrorWrapStart - subtractHeight}, { duration: 50, queue: false }, false);
+      this.$binControl.animate({height: this.controlHeightStart - subtractHeight}, { duration: 200, queue: false }, true);
     },
 
     makeToggles: function () {
