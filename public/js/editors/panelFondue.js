@@ -184,7 +184,9 @@ var createFonduePanel = function () {
 
 
 var annotateSourceTraces = function () {
-  var invocationTemplate = '<div class="fondue-invocation-row">' +
+  var invocationTemplate =
+    '<div class="fondue-invocation-row">' +
+    '  <div class="fondue-call-header">_callNum_</div>' +
     '</div>';
 
   var calledByTemplate =
@@ -202,7 +204,8 @@ var annotateSourceTraces = function () {
 
   var argTemplate = '' +
     '<li class="fondue-args-list-item"> ' +
-    ' <div class="fondue-arg">_arg_ =&nbsp;</div> ' +
+    ' <div class="fondue-arg">_arg_</div>' +
+    ' <div style="float:left;">&nbsp;=&nbsp;</div> ' +
     ' <div class="fondue-val">_val_</div> ' +
     '</li> ';
 
@@ -248,12 +251,13 @@ var annotateSourceTraces = function () {
           pill.$activeLine.prepend(pill.$expander);
 
           if (trace.invokes) {
-            _(trace.invokes).each(function (invocation) {
+            _(trace.invokes).each(function (invocation, i) {
               if (invocation.callStack) {
 
-                var $invokeRow = $(invocationTemplate);
+                var invokeHTML = invocationTemplate.replace("_callNum_", "Call " + (i + 1));
+                var $invokeRow = $(invokeHTML);
 
-                _(invocation.callStack).each(function (callInvoke) {
+                _(invocation.callStack).each(function (callInvoke, j) {
 
                   var idArr = callInvoke.nodeId.split("-");
                   var idArrRev = _(idArr).clone().reverse();
@@ -269,7 +273,7 @@ var annotateSourceTraces = function () {
                   //var endLine = idArrRev[1];
                   //var endColumn = idArrRev[0];
 
-                  var name = callInvoke.nodeName ? type + " " + callInvoke.nodeName : type;
+                  var name = callInvoke.nodeName ? type + " <span class='call-name'>" + callInvoke.nodeName + "</span>" : type;
                   var $callRow = $(calledByTemplate.replace("_calledby_", name + " at <span class='call-path'>" + path + ":" + startLine + ":" + startColumn + "</span>"));
 
                   _(callInvoke.arguments).each(function (arg, i) {
@@ -299,11 +303,11 @@ var annotateSourceTraces = function () {
                     $callRow.find(".fondue-args-list").append(argTemplate.replace("_arg_", arg.name).replace("_val_", argValue));
 
                     var objToggle = $callRow.find(".fondue-object-toggle");
-                    if(objToggle.length > 0){
-                      $(objToggle).click(function(e){
+                    if (objToggle.length > 0) {
+                      $(objToggle).click(function (e) {
                         var $target = $(e.currentTarget);
                         var $parent = $($target.parent());
-                        if ($parent.height() > 16){
+                        if ($parent.height() > 16) {
                           $parent.attr("data", $parent.height());
                           $parent.animate({height: 16}, 200);
                           $target.text("(+)")
@@ -319,7 +323,11 @@ var annotateSourceTraces = function () {
                 }, this);
 
                 pill.$invokeNode.append($invokeRow);
-
+                setTimeout(function () {
+                  _(pill.$invokeNode.find(".fondue-object-toggle")).each(function (el) {
+                    $(el).trigger("click");  //Start the toggles closed
+                  });
+                }, 100)
               } else {
                 debugger;
                 pill.$invokeNode.append(calledByTemplate.replace("_calledby_", "(No caller captured)"));

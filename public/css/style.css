@@ -6307,6 +6307,10 @@ div.loggedout {
   color: #b3ffb0;
 }
 
+.invoke-node .call-name {
+  color: #ffc7ed;
+}
+
 .fondue-arg {
   float: left;
 }
@@ -6316,7 +6320,8 @@ div.loggedout {
 }
 
 pre.fondue-pre {
-  margin-left: 4px;
+  margin-left: 0;
+  padding-left: 0;
   overflow: hidden;
 }
 
@@ -6345,8 +6350,13 @@ pre.fondue-pre .fondue-object-toggle {
   text-decoration: none;
 }
 
+.fondue-invocation-row {
+  float: left;
+  width:100%;
+}
+
 .fondue-call-row {
-  padding-left: .5em;
+  padding-left: .8em;
   padding-top: 0.25em;
   color: white;
   display: block;
@@ -6354,6 +6364,14 @@ pre.fondue-pre .fondue-object-toggle {
   width: 100%;
   padding-bottom: .25em;
   border-bottom: 1px solid #cdcdcd;
+}
+
+.fondue-call-header {
+  background-color: #ebebeb;
+  padding-left: .5em;
+  padding-top: .25em;
+  font-weight: bolder;
+  color: #252525;
 }
 
 .fondue-call-row:last-child {
