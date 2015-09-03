@@ -6319,6 +6319,21 @@ div.loggedout {
   float: left;
 }
 
+.fondue-file-link {
+  color: #2C52A8;
+  text-decoration: none;
+}
+.fondue-call-link {
+  color: #B8E3F1;
+  text-decoration: none;
+}
+
+.fondue-call-link:hover {
+  color: #c4f1d2;
+  text-decoration: none;
+  text-shadow: none;
+}
+
 pre.fondue-pre {
   margin-left: 0;
   padding-left: 0;
