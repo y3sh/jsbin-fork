@@ -557,6 +557,8 @@ Panel.prototype = {
   }
 };
 
+var secondTime = false;
+
 function populateEditor(editor, panel) {
   if (!editor.codeSet) {
     // populate - should eventually use: session, saved data, local storage
@@ -574,7 +576,11 @@ function populateEditor(editor, panel) {
     }
 
     if(panel === "javascript"){
-      fonduePopulate(editor);
+       if (secondTime) {
+         fonduePopulate(editor);
+       } else {
+         secondTime = true;
+       }
     } else {
       editor.setCode(template[panel]);
     }
@@ -645,6 +651,7 @@ function fonduePopulate(editor) {
   annotateSourceTraces();
   createFonduePanel();
   window.setTimeout(function () {
-    fondueMirror.scrollTo(0, 0);
+    fondueMirror.scrollTo({line: 0, ch:0});
+    fondueMirror.setCursor({line:0})
   }, 1)
 }

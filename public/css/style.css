@@ -6290,7 +6290,7 @@ div.loggedout {
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 0;
+  z-index: 99;
   overflow: scroll;
   background-color: #2592c6;
   box-shadow: inset 8px 8px 8px -9px #5c5b5b;

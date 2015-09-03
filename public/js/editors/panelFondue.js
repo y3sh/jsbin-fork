@@ -13,8 +13,11 @@ var createFonduePanel = function () {
 
   var fileToggleTemplate =
     '<li>  ' +
-    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _path_ ' +
+    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _fileLink_ ' +
     '</li>';
+
+  var filePathTemplate =
+    '<a href="javascript:;" class="fondue-file-link" data="_lineNo_">_path_</a>';
 
   var fondueMasterToggleTemplate =
     '<a role="button" id="fonduePanelToggle" class="button group" href="javascript:;" aria-label="FondueMaster">Tracing</a>';
@@ -78,10 +81,19 @@ var createFonduePanel = function () {
     makeToggles: function () {
       _(this.fondue.scripts).each(function (script) {
         var path = script.path;
-        var $fileToggle = $(fileToggleTemplate.split("_path_").join(path));
+        var fileLink = filePathTemplate.replace("_path_", path).replace("_lineNo_", script.binStartLine);
+        var $fileToggle = $(fileToggleTemplate.replace("_path_", path).replace("_fileLink_", fileLink));
         $fileToggle.find("input").on("click", this.toggleFile);
         this.$el.find("#fondue-toggle-group").append($fileToggle);
       }, this);
+
+      $(".fondue-file-link").click(function(e){
+        var lineNo = $(e.currentTarget).attr("data");
+        var margin = $(window).height() /2;
+        var line = parseInt(lineNo) + 1;
+        fondueMirror.scrollIntoView({line: line, ch:0}, margin);
+        fondueMirror.setCursor({line:line});
+      });
     },
 
     toggleFile: function (e) {
@@ -273,8 +285,21 @@ var annotateSourceTraces = function () {
                   //var endLine = idArrRev[1];
                   //var endColumn = idArrRev[0];
 
+                  var filePathTemplate =
+                    '<a href="javascript:;" class="fondue-call-link" dataLine="_lineNo_" dataCol="_colNo_">_path_</a>';
+
+                  var script = _.find(fondue.scripts, function(script){
+                    return script.path === path;
+                  });
+
+                  var mirrorLine = script.binStartLine + parseInt(startLine);
+
+                  filePathTemplate = filePathTemplate.replace("_lineNo_", mirrorLine);
+                  filePathTemplate = filePathTemplate.replace("_colNo_", startColumn);
+                  filePathTemplate = filePathTemplate.replace("_path_", path + ":" + startLine + ":" + startColumn);
+
                   var name = callInvoke.nodeName ? type + " <span class='call-name'>" + callInvoke.nodeName + "</span>" : type;
-                  var $callRow = $(calledByTemplate.replace("_calledby_", name + " at <span class='call-path'>" + path + ":" + startLine + ":" + startColumn + "</span>"));
+                  var $callRow = $(calledByTemplate.replace("_calledby_", name + " at <span class='call-path'>" + filePathTemplate + "</span>"));
 
                   _(callInvoke.arguments).each(function (arg, i) {
                     var argValue;
@@ -327,7 +352,17 @@ var annotateSourceTraces = function () {
                   _(pill.$invokeNode.find(".fondue-object-toggle")).each(function (el) {
                     $(el).trigger("click");  //Start the toggles closed
                   });
-                }, 100)
+                }, 100);
+
+                pill.$invokeNode.find(".fondue-call-link").click(function(e){
+                  var lineNo = $(e.currentTarget).attr("dataLine");
+                  var colNo = $(e.currentTarget).attr("dataCol");
+                  var margin = $(window).height() / 2;
+                  lineNo = parseInt(lineNo);
+                  colNo = parseInt(colNo);
+                  fondueMirror.scrollIntoView({line: lineNo, ch: colNo}, margin);
+                  fondueMirror.setCursor({line: lineNo});
+                });
               } else {
                 debugger;
                 pill.$invokeNode.append(calledByTemplate.replace("_calledby_", "(No caller captured)"));
