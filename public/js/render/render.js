@@ -148,7 +148,7 @@ var getPreparedCode = (function () { // jshint ignore:line
       // Rewrite loops to detect infiniteness.
       // This is done by rewriting the for/while/do loops to perform a check at
       // the start of each iteration.
-      js = loopProtect.rewriteLoops(js);
+      //js = loopProtect.rewriteLoops(js);
 
       // escape any script tags in the JS code, because that'll break the mushing together
       js = js.replace(re.script, '<\\/script');
