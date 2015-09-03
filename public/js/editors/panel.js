@@ -607,14 +607,42 @@ function fonduePopulate(editor) {
   var sourceHeader = "// Don't remove this line: Begin Source File: ";
   var sourceFooter = "// Don't remove this line: End Source File: ";
 
-  var extractedJS = _(fondue.scripts).reduce(function(memo, scriptObj){
+  fondue.scripts = _(fondue.scripts).sortBy(function(script){
+    return script.order;
+  });
+
+  var extractedHeadJS = _(fondue.scripts).reduce(function(memo, scriptObj){
+    if(scriptObj.domPath.indexOf("body") > -1){
+      return memo;
+    }
+
     var startJS = sourceHeader + scriptObj.path + "\n";
     var endJS = sourceFooter + scriptObj.path + "\n\n\n";
     memo += startJS + scriptObj.js + endJS;
     return memo;
   }, "");
 
-  codeMirror.setCode(extractedJS);
+  var extractedBodyJS = _(fondue.scripts).reduce(function(memo, scriptObj){
+    if(scriptObj.domPath.indexOf("body") === -1){
+      return memo;
+    }
+
+    var startJS = sourceHeader + scriptObj.path + "\n";
+    var endJS = sourceFooter + scriptObj.path + "\n\n\n";
+
+    memo += startJS + scriptObj.js + endJS;
+    return memo;
+  }, "");
+
+  if (extractedBodyJS) {
+    extractedBodyJS = "//Begin DOM Ready Section\n" +
+      "document.onreadystatechange = function () {\n" +
+      "if (document.readyState == 'complete') {\n" +
+      extractedBodyJS +
+      "}}; //End DOM Ready Section\n";
+  }
+
+  codeMirror.setCode(extractedHeadJS + extractedBodyJS);
 
   var scriptObj;
   codeMirror.eachLine(function(line) {
