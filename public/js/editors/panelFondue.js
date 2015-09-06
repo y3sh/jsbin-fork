@@ -225,37 +225,6 @@ var annotateSourceTraces = function () {
 
   fondueMirror.setOption("lineNumbers", true);
   fondue.traceMarks = [];
-  //fondue.unravelMarks = [];
-  //_(fondue.unravelHits).each(function(hit){
-  //  if(!hit.lineNumberNative){
-  //    return;
-  //  }
-  //
-  //  var script = _(fondue.scripts).find(function (scriptObj) {
-  //    return scriptObj.path === hit.scriptPath;
-  //  });
-  //
-  //  if(!script){
-  //    return;
-  //  }
-  //
-  //  var lineOffset = script.binStartLine;
-  //
-  //  var startLine = lineOffset + parseInt(hit.lineNumberNative);
-  //  fondue.unravelMarks.push(fondueMirror.markText(
-  //    {
-  //      line: startLine,
-  //      ch: 0
-  //    },
-  //    {
-  //      line: startLine,
-  //      ch: fondueMirror.getLine(startLine).length
-  //    },
-  //    {
-  //      css: "background-color:#b3ffb0"
-  //    }
-  //  ));
-  //});
 
   _(fondue.traces).each(function (trace) {
     var script = _(fondue.scripts).find(function (scriptObj) {
