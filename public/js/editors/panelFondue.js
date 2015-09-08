@@ -38,13 +38,6 @@ var createFonduePanel = function () {
     this.mirrorWrapStart = this.$mirrorWrap.css("height");
     this.$bin = $("#bin");
     this.binTopStart = parseInt(this.$bin.css("top"));
-
-    //todo here set #bin and #control height to autosize
-
-    this.codeMirrorMarkers = {
-      //path:marker
-    };
-    this.traceLessMarkers = [];
   };
 
   FonduePanelView.prototype = {
@@ -87,12 +80,12 @@ var createFonduePanel = function () {
         this.$el.find("#fondue-toggle-group").append($fileToggle);
       }, this);
 
-      $(".fondue-file-link").click(function(e){
+      $(".fondue-file-link").click(function (e) {
         var lineNo = $(e.currentTarget).attr("data");
-        var margin = $(window).height() /2;
+        var margin = $(window).height() / 2;
         var line = parseInt(lineNo) + 1;
-        fondueMirror.scrollIntoView({line: line, ch:0}, margin);
-        fondueMirror.setCursor({line:line});
+        fondueMirror.scrollIntoView({line: line, ch: 0}, margin);
+        fondueMirror.setCursor({line: line});
       });
     },
 
@@ -116,24 +109,17 @@ var createFonduePanel = function () {
     },
 
     showFile: function (path) {
-      var codeMirrorMarker = this.codeMirrorMarkers[path];
-      if (codeMirrorMarker) {
-        codeMirrorMarker.clear();
+      var markers = fondue.fileHideMarks[path];
+      if (markers) {
+        this.showSmart(markers);
       }
+
+      fondue.fileHideMarks[path] = [];
     },
 
     showInactive: function () {
-      $("#fondue-toggle-inactive").hide();
-      $("#hider-spinner").show();
-
-      window.setTimeout(_.bind(function () {
-        _(this.traceLessMarkers).each(function (marker) {
-          marker.clear();
-        });
-        this.traceLessMarkers = [];
-        $("#fondue-toggle-inactive").show();
-        $("#hider-spinner").hide();
-      }, this), 500);
+      this.showSmart(fondue.activeLineHideMarks);
+      fondue.activeLineHideMarks = [];
     },
 
     hideFile: function (path) {
@@ -141,59 +127,83 @@ var createFonduePanel = function () {
         return script.path === path;
       });
 
-      var startLine = script.binStartLine - 1;
-      var endLine = script.binEndLine + 3;
+      var startLine = script.binStartLine;
+      var endLine = script.binEndLine;
 
-      this.codeMirrorMarkers[path] = window.fondueMirror.markText({
-        line: startLine
-      }, {
-        line: endLine
-      }, {collapsed: true});
-
-      fmHideLines.concat(_.range())
+      fondue.fileHideMarks[path] = [];
+      this.hideSmart(startLine, endLine, fondue.fileHideMarks[path]);
     },
 
     hideInactive: function () {
-      var avoidRanges = _(fondue.traceMarks).map(function (traceMark) {
-        var posRange = traceMark.find();
-        var from = posRange.from.line;
-        var to = posRange.to.line;
+      this.hideSmart(0, fondueMirror.lineCount() - 1, fondue.activeLineHideMarks, fondue.activeLines);
+    },
 
-        var arr = [];
-        for (var i = from; i <= to; i++) {
-          arr.push(i);
+    showSmart: function (markerArr) {
+      _(markerArr).each(function (marker) {
+        marker.clear();
+      });
+
+      var allLines = _.range(0, fondueMirror.lineCount());
+      var inactiveLines = _.difference(allLines, fondue.activeLines);
+      fondue.allHiddenLines = _.difference(fondue.allHiddenLines, inactiveLines);
+    },
+
+    hideSmart: function (startLine, endLine, markerArr, addedLinesToExclude) {
+      var preHiddenLines = fondue.allHiddenLines.concat(addedLinesToExclude || []);
+      preHiddenLines = _.reject(preHiddenLines, function (lineNumber) {
+        return lineNumber < startLine || lineNumber > endLine;
+      });
+
+      if (preHiddenLines.length < 1) {
+        markerArr.push(window.fondueMirror.markText({
+          line: startLine
+        }, {
+          line: endLine
+        }, {collapsed: true}));
+        fondue.allHiddenLines = fondue.allHiddenLines.concat(_.range(startLine, endLine + 1));
+      } else {
+        var ranges = [];
+        var _preHiddenLines = _(preHiddenLines).sortBy(function (i) {
+          return i;
+        }).uniq(true);
+        var lastLine = null;
+        for (var i = startLine; i <= endLine; i++) {
+          if (i === endLine && lastLine !== null) {
+            if (_preHiddenLines.contains(i)) {
+              ranges.push([lastLine, i - 1]);
+            } else {
+              ranges.push([lastLine, i]);
+            }
+          } else if (i === endLine && lastLine === null) {
+            ranges.push([endLine, endLine]);
+          } else if (_preHiddenLines.contains(i)) {
+            if (lastLine !== null) {
+              ranges.push([lastLine, i - 1]);
+              lastLine = null;
+            }
+          } else {
+            if (lastLine === null) {
+              lastLine = i;
+            }
+          }
         }
 
-        return arr;
-      }).flatten();
+        _(ranges).each(function (range) {
+          markerArr.push(window.fondueMirror.markText({
+            line: range[0]
+          }, {
+            line: range[1]
+          }, {collapsed: true}));
 
-      $("#fondue-toggle-inactive").hide();
-      $("#hider-spinner").show();
-
-      window.setTimeout(_.bind(function () {
-        fondueMirror.eachLine(_.bind(function (line) {
-          var lineNo = line.lineNo();
-          if (!avoidRanges.contains(lineNo)) {
-            var marker = window.fondueMirror.markText({
-              line: lineNo - 1
-            }, {
-              line: lineNo
-            }, {collapsed: true});
-
-            this.traceLessMarkers.push(marker);
-          }
-        }, this));
-
-        $("#fondue-toggle-inactive").show();
-        $("#hider-spinner").hide();
-      }, this), 500);
+          fondue.allHiddenLines = fondue.allHiddenLines.concat(_.range(range[0], range[1] + 1));
+        }, this);
+      }
     }
   };
 
   var panelView = new FonduePanelView(fondue);
   panelView.render();
 };
-
 
 var annotateSourceTraces = function () {
   var invocationTemplate =
@@ -224,7 +234,6 @@ var annotateSourceTraces = function () {
   var preTemplate = '<pre class="fondue-pre"><a href="javascript:;" class="fondue-object-toggle">(-)</a></pre>';
 
   fondueMirror.setOption("lineNumbers", true);
-  fondue.traceMarks = [];
 
   _(fondue.traces).each(function (trace) {
     var script = _(fondue.scripts).find(function (scriptObj) {
@@ -235,7 +244,7 @@ var annotateSourceTraces = function () {
 
     var startLine = lineOffset + parseInt(trace.startLine);
     var endLine = lineOffset + parseInt(trace.endLine);
-    fondue.traceMarks.push(fondueMirror.markText(
+    var marker = fondueMirror.markText(
       {
         line: startLine,
         ch: parseInt(trace.startColumn)
@@ -247,9 +256,12 @@ var annotateSourceTraces = function () {
       {
         css: "background-color:#fffcbd"
       }
-    ));
+    );
 
-    fmActiveLines.concat(_.range(startLine, endLine));
+    var addedActiveLines = _.range(startLine, endLine);
+    marker.activeLines = addedActiveLines;
+    fondue.activeLineColorMarks.push(marker);
+    fondue.activeLines = fondue.activeLines.concat(addedActiveLines);
 
     if (trace.type === "function") {
       var pill = new PillView(fondueMirror, startLine, trace);
@@ -288,7 +300,7 @@ var annotateSourceTraces = function () {
                   var filePathTemplate =
                     '<a href="javascript:;" class="fondue-call-link" dataLine="_lineNo_" dataCol="_colNo_">_path_</a>';
 
-                  var script = _.find(fondue.scripts, function(script){
+                  var script = _.find(fondue.scripts, function (script) {
                     return script.path === path;
                   });
 
@@ -354,7 +366,7 @@ var annotateSourceTraces = function () {
                   });
                 }, 100);
 
-                pill.$invokeNode.find(".fondue-call-link").click(function(e){
+                pill.$invokeNode.find(".fondue-call-link").click(function (e) {
                   var lineNo = $(e.currentTarget).attr("dataLine");
                   var colNo = $(e.currentTarget).attr("dataCol");
                   var margin = $(window).height() / 2;
@@ -447,8 +459,3 @@ function stringifyObjToHTML(obj) {
     return '<span class="' + cls + '">' + match + '</span>';
   });
 }
-
-
-window.fmHideLines = [];
-window.fmActiveLines = [];
-

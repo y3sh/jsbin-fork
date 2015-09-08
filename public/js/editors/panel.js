@@ -676,6 +676,12 @@ function fonduePopulate(editor) {
   window.fondueMirror = codeMirror;
   window.fondue = fondue;
 
+  fondue.activeLineColorMarks = [];
+  fondue.activeLineHideMarks = [];
+  fondue.activeLines = [];
+  fondue.fileHideMarks = {};
+  fondue.allHiddenLines = [];
+
   annotateSourceTraces();
   createFonduePanel();
   window.setTimeout(function () {
