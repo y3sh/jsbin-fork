@@ -13,7 +13,7 @@ var createFonduePanel = function () {
 
   var fileToggleTemplate =
     '<li>  ' +
-    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _fileLink_ ' +
+    '  <input type="checkbox" id="fondue-toggle-inactive" data="_path_"/> Hide _fileLink_ _headBody_' +
     '</li>';
 
   var filePathTemplate =
@@ -72,10 +72,33 @@ var createFonduePanel = function () {
     },
 
     makeToggles: function () {
-      _(this.fondue.scripts).each(function (script) {
+      var scripts = _(this.fondue.scripts).sortBy("order");
+      var arr = [];
+
+      _(scripts).each(function(scriptObj){
+        if(scriptObj.domPath.indexOf("body") === -1){
+          arr.push(scriptObj);
+        }
+      });
+
+      _(scripts).each(function (scriptObj) {
+        if (scriptObj.domPath.indexOf("body") > -1) {
+          arr.push(scriptObj);
+        }
+      });
+
+      scripts = arr;
+
+      _(scripts).each(function (script) {
         var path = script.path;
+        var headBody = "";
+        if(script.domPath.indexOf("body") === -1){
+          headBody = "(head)"
+        } else {
+          headBody = "(body)"
+        }
         var fileLink = filePathTemplate.replace("_path_", path).replace("_lineNo_", script.binStartLine);
-        var $fileToggle = $(fileToggleTemplate.replace("_path_", path).replace("_fileLink_", fileLink));
+        var $fileToggle = $(fileToggleTemplate.replace("_path_", path).replace("_fileLink_", fileLink).replace("_headBody_", headBody));
         $fileToggle.find("input").on("click", this.toggleFile);
         this.$el.find("#fondue-toggle-group").append($fileToggle);
       }, this);
