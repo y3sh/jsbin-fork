@@ -111,14 +111,22 @@ var createFonduePanel = function () {
     showFile: function (path) {
       var markers = fondue.fileHideMarks[path];
       if (markers) {
-        this.showSmart(markers);
+        this.showSmart(markers, fondue.fileHideLines[path]);
       }
-
+      fondue.fileHideLines[path] = [];
       fondue.fileHideMarks[path] = [];
+
+      if (fondue.activeLineHideMarks.length > 0) {
+        this.showInactive();
+        this.hideInactive();
+      }
     },
 
     showInactive: function () {
-      this.showSmart(fondue.activeLineHideMarks);
+      var allLines = _.range(0, fondueMirror.lineCount());
+      var inactiveLines = _.difference(allLines, fondue.activeLines);
+
+      this.showSmart(fondue.activeLineHideMarks, inactiveLines);
       fondue.activeLineHideMarks = [];
     },
 
@@ -130,29 +138,40 @@ var createFonduePanel = function () {
       var startLine = script.binStartLine;
       var endLine = script.binEndLine;
 
+      var reHide = false;
+      if (fondue.activeLineHideMarks.length > 0) {
+        this.showInactive();
+        reHide = true;
+      }
+
       fondue.fileHideMarks[path] = [];
       this.hideSmart(startLine, endLine, fondue.fileHideMarks[path]);
+      fondue.fileHideLines[path] = _.range(startLine, endLine + 1);
+
+      if (reHide) {
+        this.hideInactive();
+      }
     },
 
     hideInactive: function () {
       this.hideSmart(0, fondueMirror.lineCount() - 1, fondue.activeLineHideMarks, fondue.activeLines);
     },
 
-    showSmart: function (markerArr) {
+    showSmart: function (markerArr, linesToRemoveFromAllHidden) {
       _(markerArr).each(function (marker) {
         marker.clear();
       });
 
-      var allLines = _.range(0, fondueMirror.lineCount());
-      var inactiveLines = _.difference(allLines, fondue.activeLines);
-      fondue.allHiddenLines = _.difference(fondue.allHiddenLines, inactiveLines);
+      fondue.allHiddenLines = _.difference(fondue.allHiddenLines, linesToRemoveFromAllHidden);
     },
 
-    hideSmart: function (startLine, endLine, markerArr, addedLinesToExclude) {
-      var preHiddenLines = fondue.allHiddenLines.concat(addedLinesToExclude || []);
-      preHiddenLines = _.reject(preHiddenLines, function (lineNumber) {
-        return lineNumber < startLine || lineNumber > endLine;
-      });
+    hideSmart: function (startLine, endLine, markerArr, additonalLinesToKeepShown) {
+      var preHiddenLines = fondue.allHiddenLines.concat(additonalLinesToKeepShown || []);
+      preHiddenLines = preHiddenLines.concat(_(fondue.fileHideLines).values().flatten().value());
+
+      //preHiddenLines = _.reject(preHiddenLines, function (lineNumber) {
+      //  return lineNumber < startLine || lineNumber > endLine;
+      //});
 
       if (preHiddenLines.length < 1) {
         markerArr.push(window.fondueMirror.markText({
@@ -165,7 +184,7 @@ var createFonduePanel = function () {
         var ranges = [];
         var _preHiddenLines = _(preHiddenLines).sortBy(function (i) {
           return i;
-        }).uniq(true);
+        }).uniq();
         var lastLine = null;
         for (var i = startLine; i <= endLine; i++) {
           if (i === endLine && lastLine !== null) {
@@ -258,7 +277,7 @@ var annotateSourceTraces = function () {
       }
     );
 
-    var addedActiveLines = _.range(startLine, endLine);
+    var addedActiveLines = _.range(startLine, endLine + 1);
     marker.activeLines = addedActiveLines;
     fondue.activeLineColorMarks.push(marker);
     fondue.activeLines = fondue.activeLines.concat(addedActiveLines);

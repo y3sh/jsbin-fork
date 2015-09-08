@@ -679,6 +679,7 @@ function fonduePopulate(editor) {
   fondue.activeLineColorMarks = [];
   fondue.activeLineHideMarks = [];
   fondue.activeLines = [];
+  fondue.fileHideLines = {};
   fondue.fileHideMarks = {};
   fondue.allHiddenLines = [];
 
