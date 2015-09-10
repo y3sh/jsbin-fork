@@ -5,8 +5,13 @@ var libraries = [
     'group': 'jQuery'
   },
   {
-    'url': 'https://code.jquery.com/jquery-2.1.1.min.js',
-    'label': 'jQuery 2.1.1',
+    'url': 'https://code.jquery.com/jquery-3.0.0-alpha1.js',
+    'label': 'jQuery 3.0.0-alpha1',
+    'group': 'jQuery'
+  },
+  {
+    'url': 'https://code.jquery.com/jquery-2.1.4.js',
+    'label': 'jQuery 2.1.4',
     'group': 'jQuery'
   },
   {
@@ -15,13 +20,33 @@ var libraries = [
     'group': 'jQuery'
   },
   {
-    'url': 'https://code.jquery.com/jquery-1.11.1.min.js',
-    'label': 'jQuery 1.11.1',
+    'url': 'https://code.jquery.com/jquery-compat-3.0.0-alpha1.js',
+    'label': 'jQuery Compat 3.0.0-alpha1',
     'group': 'jQuery'
   },
   {
-    'url': 'https://code.jquery.com/jquery-1.9.1.min.js',
+    'url': 'https://code.jquery.com/jquery-1.11.3.js',
+    'label': 'jQuery 1.11.3',
+    'group': 'jQuery'
+  },
+  {
+    'url': 'https://code.jquery.com/jquery-1.9.1.js',
     'label': 'jQuery 1.9.1',
+    'group': 'jQuery'
+  },
+  {
+    'url': 'https://code.jquery.com/jquery-1.8.3.js',
+    'label': 'jQuery 1.8.3',
+    'group': 'jQuery'
+  },
+  {
+    'url': 'https://code.jquery.com/jquery-1.7.2.js',
+    'label': 'jQuery 1.7.2',
+    'group': 'jQuery'
+  },
+  {
+    'url': 'https://code.jquery.com/jquery-1.6.4.js',
+    'label': 'jQuery 1.6.4',
     'group': 'jQuery'
   },
   {
@@ -35,18 +60,18 @@ var libraries = [
   },
   {
     'url': [
-      'https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.min.css',
-      'https://code.jquery.com/jquery-1.11.0.min.js',
-      'https://code.jquery.com/ui/1.11.4/jquery-ui.min.js'
+      'https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css',
+      'https://code.jquery.com/jquery-1.11.3.js',
+      'https://code.jquery.com/ui/1.11.4/jquery-ui.js'
     ],
     'label': 'jQuery UI 1.11.4',
     'group': 'jQuery UI'
   },
   {
     'url': [
-      'https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.min.css',
-      'https://code.jquery.com/jquery-1.11.0.min.js',
-      'https://code.jquery.com/ui/1.10.4/jquery-ui.min.js'
+      'https://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css',
+      'https://code.jquery.com/jquery-1.11.3.js',
+      'https://code.jquery.com/ui/1.10.4/jquery-ui.js'
     ],
     'label': 'jQuery UI 1.10.4',
     'group': 'jQuery UI'
@@ -54,7 +79,7 @@ var libraries = [
   {
     'url': [
       'https://code.jquery.com/ui/1.9.2/themes/smoothness/jquery-ui.css',
-      'https://code.jquery.com/jquery-1.8.3.min.js',
+      'https://code.jquery.com/jquery-1.8.3.js',
       'https://code.jquery.com/ui/1.9.2/jquery-ui.js'
     ],
     'label': 'jQuery UI 1.9.2',
@@ -63,7 +88,7 @@ var libraries = [
   {
     'url': [
       'https://code.jquery.com/mobile/git/jquery.mobile-git.css',
-      'https://code.jquery.com/jquery-1.11.0.min.js',
+      'https://code.jquery.com/jquery-1.11.3.js',
       'https://code.jquery.com/mobile/git/jquery.mobile-git.js'
     ],
     'label': 'jQuery Mobile WIP (via git)',
@@ -71,46 +96,39 @@ var libraries = [
   },
   {
     'url': [
-      'https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.css',
-      'https://code.jquery.com/jquery-1.11.0.min.js',
-      'https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.min.js'
+      'https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.css',
+      'https://code.jquery.com/jquery-1.11.3.js',
+      'https://code.jquery.com/mobile/1.4.2/jquery.mobile-1.4.2.js'
     ],
     'label': 'jQuery Mobile 1.4.2',
     'group': 'jQuery Mobile'
   },
   {
     'url': [
-      'https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css',
-      'https://code.jquery.com/jquery-1.9.1.min.js',
-      'https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js'
+      'https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.css',
+      'https://code.jquery.com/jquery-1.9.1.js',
+      'https://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.js'
     ],
     'label': 'jQuery Mobile 1.3.2',
     'group': 'jQuery Mobile'
   },
   {
     'url': [
-      'https://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css',
-      'https://code.jquery.com/jquery-1.8.3.min.js',
-      'https://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.js'
+      'https://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.css',
+      'https://code.jquery.com/jquery-1.8.3.js',
+      'https://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.js'
     ],
     'label': 'jQuery Mobile 1.2.1',
     'group': 'jQuery Mobile'
   },
   {
     'url': [
-      'https://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.css',
-      'https://code.jquery.com/jquery-1.6.4.min.js',
-      'https://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.min.js'
+      'https://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.css',
+      'https://code.jquery.com/jquery-1.6.4.js',
+      'https://code.jquery.com/mobile/1.1.2/jquery.mobile-1.1.2.js'
     ],
     'label': 'jQuery Mobile 1.1.2',
     'group': 'jQuery Mobile'
-  },
-  {
-    'url': [
-      '//himera-emh.herokuapp.com/js/repl.js'
-    ],
-    'label': 'ClojureScript',
-    'group': 'ClojureScript'
   },
   {
     'url': [
@@ -227,40 +245,22 @@ var libraries = [
   },
   {
     'url': [
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.common.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.default.min.css',
-      'https://code.jquery.com/jquery-1.9.1.min.js',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/js/kendo.ui.core.min.js'
+      'https://da7xgjtj801h2.cloudfront.net/2015.2.624/styles/kendo.common.min.css',
+      'https://da7xgjtj801h2.cloudfront.net/2015.2.624/styles/kendo.silver.min.css',
+      'https://code.jquery.com/jquery-2.1.4.min.js',
+      'https://da7xgjtj801h2.cloudfront.net/2015.2.624/js/kendo.ui.core.min.js'
     ],
-    'label': 'Kendo UI Core 2014.Q2',
+    'label': 'Kendo UI Core 2015.2.624',
     'group': 'Kendo UI'
   },
   {
     'url': [
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.common.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.rtl.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.default.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.dataviz.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.dataviz.default.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/styles/kendo.mobile.all.min.css',
+      'https://da7xgjtj801h2.cloudfront.net/2014.3.1411/styles/kendo.common.min.css',
+      'https://da7xgjtj801h2.cloudfront.net/2014.3.1411/styles/kendo.default.min.css',
       'https://code.jquery.com/jquery-1.9.1.min.js',
-      'https://da7xgjtj801h2.cloudfront.net/2014.2.716/js/kendo.all.min.js'
+      'https://da7xgjtj801h2.cloudfront.net/2014.3.1411/js/kendo.ui.core.min.js'
     ],
-    'label': 'Kendo UI 2014.Q2',
-    'group': 'Kendo UI'
-  },
-  {
-    'url': [
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.common.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.rtl.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.default.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.dataviz.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.dataviz.default.min.css',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/styles/kendo.mobile.all.min.css',
-      'https://code.jquery.com/jquery-1.9.1.min.js',
-      'https://da7xgjtj801h2.cloudfront.net/2014.1.318/js/kendo.all.min.js'
-    ],
-    'label': 'Kendo UI 2014.Q1',
+    'label': 'Kendo UI Core 2014.3.1411',
     'group': 'Kendo UI'
   },
   {
@@ -354,13 +354,13 @@ var libraries = [
     'group': 'Angular'
   },
   {
-    'url': '//fb.me/react-0.13.1.js',
-    'label': 'React 0.13.1',
+    'url': '//fb.me/react-0.13.3.js',
+    'label': 'React 0.13.3',
     'group': 'React'
   },
   {
-    'url': '//fb.me/react-with-addons-0.13.1.js',
-    'label': 'React with Add-Ons 0.13.1',
+    'url': '//fb.me/react-with-addons-0.13.3.js',
+    'label': 'React with Add-Ons 0.13.3',
     'group': 'React'
   },
   {
@@ -454,15 +454,15 @@ var libraries = [
   {
     'url': [
       'https://code.jquery.com/jquery-1.11.1.min.js',
-      '//builds.emberjs.com/tags/v1.13.2/ember-template-compiler.js',
-      '//builds.emberjs.com/tags/v1.13.2/ember.debug.js'
+      '//builds.emberjs.com/tags/v1.13.5/ember-template-compiler.js',
+      '//builds.emberjs.com/tags/v1.13.5/ember.debug.js'
     ],
-    'label': 'Ember.js 1.13.2',
+    'label': 'Ember.js 1.13.5',
     'group': 'Ember'
   },
   {
-    'url': '//builds.emberjs.com/tags/v1.13.2/ember-data.js',
-    'label': 'Ember Data 1.13.4',
+    'url': '//builds.emberjs.com/tags/v1.13.6/ember-data.js',
+    'label': 'Ember Data 1.13.6',
     'group': 'Ember'
   },
   {
@@ -681,6 +681,10 @@ var libraries = [
     'url': 'https://cdnjs.cloudflare.com/ajax/libs/mori/0.3.2/mori.js',
     'label': 'mori 0.3.2',
     'group': 'Data structures'
+  },
+  {
+    'url': 'https://cdn.jsdelivr.net/ramda/0.15.1/ramda.min.js',
+    'label': 'Ramda 0.15.1'
   }
 ];
 
