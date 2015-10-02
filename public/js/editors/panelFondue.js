@@ -72,36 +72,29 @@ var createFonduePanel = function () {
     },
 
     makeToggles: function () {
-      var scripts = _(this.fondue.scripts).sortBy("order");
-      var arr = [];
-
-      _(scripts).each(function(scriptObj){
-        if(scriptObj.domPath.indexOf("body") === -1){
-          arr.push(scriptObj);
-        }
-      });
-
-      _(scripts).each(function (scriptObj) {
-        if (scriptObj.domPath.indexOf("body") > -1) {
-          arr.push(scriptObj);
-        }
-      });
-
-      scripts = arr;
-
-      _(scripts).each(function (script) {
-        var path = script.path;
-        var headBody = "";
-        if(script.domPath.indexOf("body") === -1){
-          headBody = "(head)"
-        } else {
-          headBody = "(body)"
-        }
-        var fileLink = filePathTemplate.replace("_path_", path).replace("_lineNo_", script.binStartLine);
-        var $fileToggle = $(fileToggleTemplate.replace("_path_", path).replace("_fileLink_", fileLink).replace("_headBody_", headBody));
-        $fileToggle.find("input").on("click", this.toggleFile);
-        this.$el.find("#fondue-toggle-group").append($fileToggle);
-      }, this);
+      _(this.fondue.scripts)
+        .reject("builtIn")
+        .sortBy("order")
+        .sortBy(function (scriptObj) {
+          if (scriptObj.domPath.indexOf("body") === -1) {
+            return 0;
+          } else {
+            return 1;
+          }
+        })
+        .each(function (script) {
+          var path = script.path;
+          var headBody = "";
+          if (script.domPath.indexOf("body") === -1) {
+            headBody = "(head)"
+          } else {
+            headBody = "(body)"
+          }
+          var fileLink = filePathTemplate.replace("_path_", path).replace("_lineNo_", script.binStartLine);
+          var $fileToggle = $(fileToggleTemplate.replace("_path_", path).replace("_fileLink_", fileLink).replace("_headBody_", headBody));
+          $fileToggle.find("input").on("click", this.toggleFile);
+          this.$el.find("#fondue-toggle-group").append($fileToggle);
+        }, this);
 
       $(".fondue-file-link").click(function (e) {
         var lineNo = $(e.currentTarget).attr("data");

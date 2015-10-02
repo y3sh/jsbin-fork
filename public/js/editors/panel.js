@@ -610,7 +610,7 @@ function fonduePopulate(editor) {
 
   fondue.scripts = _(fondue.scripts).sortBy(function(script){
     return script.order;
-  }).value();
+  }).reject("builtIn").value();
 
   var extractedHeadJS = _(fondue.scripts).reduce(function(memo, scriptObj){
     if(scriptObj.domPath.indexOf("body") > -1){
